@@ -1,0 +1,355 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{extramarks}
+\usepackage{chngpage}
+\usepackage{soul,color}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{ifpdf}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage[sorting = none]{biblatex}
+\usepackage{hyperref}
+\usepackage{wrapfig}
+\usepackage{tocloft}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{left = 2cm, right = 2cm, top = 1.5 cm, bottom = 1.5 cm}
+
+\usepackage{csvsimple}
+
+\setcounter{tocdepth}{3}
+\usepgflibrary{arrows}
+\hypersetup{colorlinks,linkcolor = black, urlcolor=blue, citecolor = black}
+\bibliography{DOC}
+% In case you need to adjust margins:
+% \topmargin=-0.45in      %
+% \evensidemargin=0in     %
+% \oddsidemargin=0in      %
+% \textwidth=6.5in        %
+% \textheight=9.0in       %
+% \headsep=0.25in         %
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\fontsize{7}{9}\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 标题部分
+\title{\textmd{\bf Flow Free Game Variant Solved Using Z3 SAT optimizer}}
+\date{\today}
+\author{Hong Wenhao, 2016011266}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\begin{spacing}{1.1}
+    \maketitle
+    \pagenumbering{gobble}
+    \newpage
+    \tableofcontents
+    \pagenumbering{arabic}
+    \newpage
+    \setcounter{section}{-1}
+
+    \section{Build, Run and Test}
+    After unzipping the code, there are three directories.
+    \begin{description}
+        \item [doc] The documentation is stored in this directory.
+        \item [src] The source files are stored in this directory.
+        \item [testcase] The test cases, including a built visualizer (written in Java Swing), are stroed in this directory.
+    \end{description}
+
+    \subsection{Building and Running}
+    \label{BUILD}
+    There are several tasks a user may wish to perform. Several makefiles are provided for this purpose.
+
+    \emph{The makefile are written for Unix-like systems. You may need to modify the makefile in order for them to function under Windows.}
+    \begin{description}
+        \item [Generator] To use the generator, run the following commands under the directory $/src$.
+        \begin{lstlisting}[language = bash]
+make generate\end{lstlisting}
+        The generator produce 10 input files in the valid format in the directoy $/testcase/set0/$ with file names $0.txt$, $1.txt$, $\ldots$ Note that, for the generator to function properly, $/testcase/set0$ should exists.
+        \item [Solver] To use the solver, run the following commands under the directory $/src$.
+        \begin{lstlisting}[language = bash]
+make test\end{lstlisting}
+        The solver produces several verbose output when running. The behavior of solver will be further described in \ref{TEST:SOLVER}.
+        \item [Visualizer] The Visualizer was written in Java and is built beforehand. It can be found under the directory
+        $/testcase$. However, you may wish to build the visualizer yourself. To build the visualizer, run the following command under
+        the directory $/src/visualizer$.
+        \begin{lstlisting}[language = bash]
+make build_\end{lstlisting}
+        Again, the behavior will be descirbed in \ref{TEST:SOLVER}.
+    \end{description}
+
+    \subsection{Testing}
+    \label{TEST:SOLVER}
+    \begin{description}
+        \item [Solver] After running the command in \ref{BUILD}, the program $test$ is runned in the terminal.
+        First, it prompts the user to input which test case to run on. You should enter a single number in the range 0 $\ldots$ 8.
+
+        {
+        \centering
+        \includegraphics[width = 0.6\textwidth] {solsc1.png}
+        }
+
+        Then it asks whether you need to process all the 10 files. If yes, a limit number is needed (otherwise the program may not terminate when the board is large).
+
+        {
+        \centering
+        \includegraphics[width = 0.6\textwidth] {solsc2.png}
+        }
+
+        {\centering
+        \includegraphics[width = 0.6\textwidth] {solsc3.png}}
+
+        The statistics are written in $/testcase/seti/stats.csv$ where $i$ is the number of test set.
+
+        A script $/testcase/collect.py$ is provided to collect all the $stats.csv$ from the test sets (0 to 8) into a single file.
+
+        \item [Visualizer] The visualizer display the board using random colors. There are three buttons on the visualizer.
+
+        {\centering \includegraphics[width = 0.6\textwidth] {vissc1.png}}
+
+        If generate is clicked, the visulizer generate a random layout of the board (which may not be valid input), this function is mainly for testing the visualizer.
+
+        Generate to a file and read has mainly the same function as ``generate'', while it save the layout of the grid in a file named ``grids.txt''.
+
+        To read a file which is in a valid format (see \ref{DAT:BOARD}), input the file name in the text box at the bottom, and click read. You may want to click the button multiple times before a good looking color is gained.
+
+        {\centering \includegraphics[width = 0.6\textwidth] {vissc2.png}}
+
+        When errors occur, the messages are printed on standard error, so it is recommended to used terminal to run the visualizer.
+
+        {\centering \includegraphics[width = 0.6\textwidth] {vissc3.png}}
+    \end{description}
+    \newpage
+    \section{Overview}
+    In this project a problem akin to the Flow Free game is solved. Given an $n \times n$ grid along with some terminal points. The goal is to connect all the terminals using paths, which satisfy
+    \begin{enumerate} [label = \arabic*. ]
+        \item Different paths cannot intersect.
+        \item Paths cannot contain obstacles (black). Note that terminals are also treated as obstacles of other colors.
+    \end{enumerate}
+    There can be multiple solutions. Our purpose is to find a solution with the maximal pairs of terminals connected, and if tied, minimizing on the number of routing grids used. See the following layout for reference. On the right is the optimal solution our solver gives.
+
+    \includegraphics[width = 0.47\textwidth] {Ovsc2.png}
+    \includegraphics[width = 0.47\textwidth] {Ovsc1.png}
+
+    Several other solutions
+
+    \includegraphics[width = 0.47\textwidth] {Ovsc3.png}
+    \includegraphics[width = 0.47\textwidth] {Ovsc4.png}
+
+    The projects' solution is based on a formulation to SAT problem, like that provided in \cite{Keszocze:2015:GER:2840819.2840941}, which is subsequently solved by the Z3Opt SAT optimizer by Microsoft Research. However, it
+    should be noted that the example problem in \cite{Keszocze:2015:GER:2840819.2840941} is much more complex than what we are trying to solve. So the resultant formulation in this project is much simpler.
+    \section{Data representation}
+    \subsection{Board representation}
+    \label{DAT:BOARD}
+    One of the key design on data representation in the project in how to define a board layout. For this purpose, we give a lightweight representation of the board layout as defined in the following.
+    \begin{enumerate}[label = \arabic*. ]
+        \item The first line contains an integer $N$, which is the dimension of the square borad.
+        \item The following $N$ lines, each containing $N$ numbers, represent the contents on each grids of the $N \times N$ board. Each number is either
+        \begin{enumerate}[label = \alph*)]
+            \item 0, which means an empty grid.
+            \item -1, which means an obstacle grid.
+            \item A number from $1, 2, \ldots, C$, where $C$ is the number of colors on the grid.
+
+            If the file is a valid input, these numbers should come in pair as they represent terminals.
+
+            If the file is a valid output, colors signify which terminal pair is using that grid. In this case, in order to distinguish terminals, the terminals
+            are appended with an asterisk(*).
+        \end{enumerate}
+    \end{enumerate}
+    This format is used by the solver to receive input, and by the visualizer to draw the layout. The generator also generate a valid input in this format.
+    \subsection{Internal Objects and Data}
+    \paragraph{Board}
+    Internally, a board's information is saved in a Board object. It keeps two matrices, one keeping the color of each grid, the other keeping track of whether the grid is a terminal. It also keeps a set of Grid Object (which is
+    an inner class representing a grid on the board) which are the terminals on the board.
+
+    The Board's constructor receives a file name and read data formatted in \ref{DAT:BOARD} from the file. It also does some basic validating to prevent some invalid input.
+    \paragraph{Solver}
+    \subparagraph{Base Solver}
+    This is an abstract class of a solver. The interface of a sovler, and most I/O are implemented in this base class. It internally keeps pointers to input Board and output Board to manipulate the solving process.
+    \subparagraph{Z3 Solver}
+    This is an implementation of Base Solver. In particular, Z3 Solver handles the solution process using Z3Opt as engine. Internally it holds a bunch of helper methods to make the $void\, solve()$ process easier to understand.
+    \section{Formulation to SAT}
+    In this section, the process of reducing the probelm to SAT is described.
+    \subsection{Overview}
+    The key step, as illustrated in \cite{Keszocze:2015:GER:2840819.2840941}, is to determine the variables and constraints of the problem formulation. After setting this constraints to the solver, what is left is to trigger the
+    SAT solution process, patiently wait for it to terminate, and decode the result back into our own problem. As the real solution process is handled by Z3, if the input is large the program is likely to run for several hours. Therefore
+    a safeguard limit is needed by the solver to determine which cases to ignore when batch processing.
+    \subsection{Variables Definition}
+    \emph{Side note} A straightforward formulation is to assign $C$ boolean values, $color_{i,j,c}$, to each grid, where $1 \ge i, j \ge N$ and $0 \ge c \ge C$, to represent whether the grid $[i, j]$ is in color $c$. However, this would produce $O(2^C)$ combination and might
+    enlarge the search space, therefore a formulation to integer values are used instead. Hopefully this would reduce the search space (for each grid) to $O(C)$.
+
+    For each grid $[i, j]$, assign an integer variable $color_{i, j}$, representing the color on the grid. We restrict these variable to $\{ -1, 0, \ldots, C\}$, which has the same meaning as in \ref{DAT:BOARD}.
+
+    Another helper function, $routed: int \to Bool$ is defined for the formulation. This function keeps track of which colors are successfully matched, and the input range is normally $\{1, 2, \ldots C\}$. (We say \emph{normally} because Z3 functions are total, they can receive
+    other input, but the output are not specified in our formulation).
+
+    This formulation totally makes up $O(C^{N^2}2^C)$ search space, which is daunting for a direct search. However, we have not put our constraints yet. This constraints can significantly reduce the search space and, as Z3Opt is specifically designed for SAT problems, it is able to solve these problems to the scale $N \approx 12$ and $C \approx 12$.
+    \subsection{Constraints Definition}
+    \label{CON:D}
+    Without constraints, the solution given by Z3Opt is of no use. Several constraints are passed to Z3Opt to get usable results.
+    \begin{enumerate}[label = \arabic*. ]
+        \item If the original board is empty, then assert $0 \le color_{i, j} \le C$. If the board is already an obstacle, assert $color_{i, j} = -1$. If the board is a terminal with color $c$, assert $color_{i, j} = c$.
+
+        This constraints is used to make the solution consistent to the input board.
+
+        \item For any grid $color_{i, j}$ in the solution, assert the following properties.
+        \begin{enumerate} [label = \alph*. ]
+            \item If $color_{i, j} = 0$, which means the grid is empty, do nothing
+            \item If $color_{i, j} = c$, which means the grid is used as routing grid, then
+
+            If $!routed(c)$, do nothing.
+
+            Else $routed(c)$, which means this color is routed, let $countNear(i, j)$ to be the number of neighboring grids in the same color with $color_{i, j}$,  assert $countNear(i, j) = 1$ if the grid is a terminal, otherwise assert $countNear(i, j) = 2$.
+
+            Note that, by ``neighbor'', we mean the grids sharing an edge with the grid of concern.
+        \end{enumerate}
+
+        This constraint seems hard to understand. What it means is essentialy that, any grid used as routing grid should have two neighbors. This property is an important feature of a valid solution. However, this is not enough to guarantee a valid solution as explained in \ref{CON:SP}, \ref{CON:PIT}.
+    \end{enumerate}
+
+    \subsection{Special Contraints: Optimization Goals}
+    \label{CON:SP}
+    For a board layout, there are be several colutions, which may not be optimal. Fortunately Z3Opt provides an optimization solver which can not only solve the problem, but also find a solution satisfying multiple optimization goals.
+    \begin{enumerate} [label = \arabic*. ]
+        \item Maximize $\sum\limits_{c = 1}^C routed(c)$.
+
+        This constraint, in other words, tells the solver to maximize the number of successfully matched pairs.
+
+        \item Minimize $\sum\limits_{1 \le i, j \le n} (color_{i, j} \neq 0)$.
+
+        This constraint tells the solver to minimize the number of routing grids used. Here I do not take out the blocks and unrouted terminals because they do not make a difference in the optimal solution.
+
+        \emph{This constraint is particularly important, deleting this constraints will yield invalid solutions as illustrated in \ref{CON:PIT}.}
+    \end{enumerate}
+    \subsection{Pitfalls}
+    \label{CON:PIT}
+    If we omit the second optimizationi goal, we may get the following invalid results.
+
+    \includegraphics[width = 0.47\textwidth] {pitsc1.png}
+    \includegraphics[width = 0.47\textwidth] {pitsc2.png}
+
+    On the left, there are some mysterious ``Cycles''. On the right, unrouted colors can appear randomly on empty grids.
+
+    It is apparent that the two solutions satisfy constraints in \ref{CON:D} but are not valid solutions. However, we can see that any optimal solution produced by our solvers are valid, because it also minimizes the number of routing grids used. After this elimination, the cases happening in the two pictures should not appear.
+
+    \subsection{Result Conversion}
+    After having Z3Opt solve the formulated problem, we obtain a so-called optimization model. We can further evaluate $color_{i, j}$ and $routed()$ to get our desired results.
+    \section{Statistics}
+    In this section we will examine several random test cases generated by the generator and see our solver's performance and correctness.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 0 (dense (more terminals) and small board) \label{STAT:0}}
+        \csvautobooktabular{../testcase/set0/stats.csv}
+    \end{table}
+
+    It can be seen that running time is very small if $n$ is small. When $n$ reaches 9 or 10 the test seems to be slower. It should be noted that in test 5, the running times is very small even if $n = 9$.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 1 (small board, more obstacles)}
+        \csvautobooktabular{../testcase/set1/stats.csv}
+    \end{table}
+
+    In this set, two test cases are abandoned because they are likely to run for a \emph{very} long time. It can be seen that, with more obstacles the overall runtime is shorter compared to Figure \ref{STAT:0}. This is because the search space is reduced.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 2 (small board, less obstacles)}
+        \csvautobooktabular{../testcase/set2/stats.csv}
+    \end{table}
+
+    In this set, the running time is slightly longer because there are less obstacles.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 3 (small board, dense terminals)}
+        \csvautobooktabular{../testcase/set3/stats.csv}
+    \end{table}
+    As the board become denser, the search space is reduce. So the overall performace is improved.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 4 (larger board, 1-3 terminals)}
+        \csvautobooktabular{../testcase/set4/stats.csv}
+    \end{table}
+
+    If the board is large are there are sparse terminals, the search space becomes significantly larger. However, our solver can still terminate if the terminals come in 1 to 3 pairs.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 5 (larger board, 1-3 terminals)}
+        \csvautobooktabular{../testcase/set5/stats.csv}
+    \end{table}
+
+    This is the same type of data as Set 4.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 6 (general)}
+        \csvautobooktabular{../testcase/set6/stats.csv}
+    \end{table}
+
+    Our solver works well with general test cases which are medium in size, and contain 3 to 6 terminal pairs.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 7 (general)}
+        \csvautobooktabular{../testcase/set7/stats.csv}
+    \end{table}
+
+    Our solver works well with general test cases which are medium in size, and contain 3 to 6 terminal pairs.
+
+    \begin{table}[H]
+        \centering
+        \caption{Set 8 (devil's test case, large and dense)}
+        \csvautobooktabular{../testcase/set8/stats.csv}
+    \end{table}
+
+    For large board and $O(n)$ pairs of terminals, our solver perform worse but can still terminate (compared with set 5 and set 6). This is again, because the search space is reduced.
+
+    \section{Conclusion}
+    After our experiments, we found that the problem can, indeed, be formulated intto a satisfiability problem and can be solved using Z3Opt. This kind of technique is powerful and can be applied to a wide range of chip related problems as mentiond in \cite{Keszocze:2015:GER:2840819.2840941}. Its advantage is that it is a general
+    problem solving method and is guaranteed to be optimal. On the other hand, though, I believe heuristics results are still important because in many cases, suboptimal results are sufficient.
+\end{spacing}
+\newpage
+\printbibliography
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
